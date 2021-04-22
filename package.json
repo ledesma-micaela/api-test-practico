@@ -1,0 +1,15 @@
+{
+  "name": "test-practico-meli",
+  "version": "1.0.0",
+  "description": "Test practico - MELI",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "author": "Micaela Ledesma",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "got": "^11.8.2"
+  }
+}
