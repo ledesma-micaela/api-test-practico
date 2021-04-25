@@ -15,7 +15,7 @@ exports.getFilteredItems = async (req, res) => {
 
   try {
 		const { body } = await got(`${apiUrl}/sites/MLA/search?q=${searchParam}`, { responseType: 'json' });
-    let items = FilteredItems(body.results);
+    let items = FilteredItems(body);
     items = { author, ...items };
 
     res.json(items);

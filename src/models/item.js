@@ -1,55 +1,62 @@
 exports.FilteredItems = (data) => {
+  let categoryFilters = data.filters.length ? data.filters : data.available_filters;
   return {
-    categories: findCategories(data),
-    items: getItems(data)
-  }
+    categories: findCategories(categoryFilters),
+    items: getItems(data.results)
+  };
 }
 
 exports.ItemDetails = (data) => {
+  let item = getItemMainDetails(data);
+  item = {
+    ...item,
+    picture: data.pictures[0].url,
+    sold_quantity: data.sold_quantity
+  };
+
+  return { item };
+}
+
+function getItemMainDetails(data) {
   return {
-    item: {
-      id: data.id,
-      title: data.title,
-      price: {
-        currency: data.currency_id,
-        amount: Math.trunc(data.price),
-        decimals: getDecimals(data.price)
-      },
-      picture: data.pictures[0].url,
-      condition: data.condition,
-      free_shipping: data.shipping.free_shipping,
-      sold_quantity: data.sold_quantity
-    }
-  }
+    id: data.id,
+    title: data.title,
+    price: {
+      currency: data.currency_id,
+      amount: Math.trunc(data.price),
+      decimals: getDecimals(data.price)
+    },
+    condition: data.condition,
+    free_shipping: data.shipping.free_shipping,
+  };
 }
 
 function findCategories(data) {
-  const categories = [];
-  data.forEach(element => {
-    if (!categories.includes(element.category_id)) {
-      categories.push(element.category_id);
-    }
-  });
-  return categories;
+  const categoryFilter = data.find(filter => filter.id === 'category') || [];
+
+  if (categoryFilter.values[0].path_from_root) {
+    const categoryValues = categoryFilter.values[0].path_from_root;
+    return categoryValues.map(element => element.name);
+  } else {
+    const max = categoryFilter.values.reduce((prev, current) => (prev.results > current.results) ? prev : current);
+    return [max.name];
+  }
 }
 
 function getItems(data) {
   const items = [];
+
   data.forEach(element => {
-    const item = {
-      id: element.id,
-      title: element.title,
-      price: {
-        currency: element.currency_id,
-        amount: Math.trunc(element.price),
-        decimals: getDecimals(element.price)
-      },
+    let item = getItemMainDetails(element);
+    item = { 
+      ...item,
       picture: element.thumbnail,
-      condition: element.condition,
-      free_shipping: element.shipping.free_shipping
+      address_state: element.address.state_name
     }
+
     items.push(item)
   });
+
   return items;
 }
 
